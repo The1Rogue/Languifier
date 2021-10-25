@@ -1,7 +1,9 @@
 import tkinter as tk
+from tkinter import *
 import tkinter.font as font
 import pytesseract as pt
-from PIL import Image
+from PIL import Image, ImageTk
+import screen_brightness_control as pct
 # import picamera as pc
 # from gpiozero import Button as btn
 import requests
@@ -15,8 +17,8 @@ mainFrame.pack()
 
 screenWidth, screenHeight = wn.winfo_screenwidth(), wn.winfo_screenheight()
 
-monoFont = font.Font(family ="NotoSansMono Nerd Font", size = 20)
-
+monoFont = font.Font(family ="NotoSansMono Nerd Font", size=20)
+monoFont1 = font.Font(family ="NotoSansMono Nerd Font", size=20, weight='bold')
 #bttn = btn(21)
 
 def wrapper(word, parent):
@@ -51,6 +53,7 @@ def createButtonFrame():
 
     out = tk.Canvas(wn, yscrollincrement = 1)
     frame = tk.Frame(out)
+    tk.Label(out, text="Which word would you like to simplify?", font=monoFont1).pack(side='top')
 
     frame.bind(
         "<Configure>",
@@ -65,7 +68,6 @@ def createButtonFrame():
     lineIndex = 0
     line = tk.Frame(frame)
     column = 0
-
     width = 0
 
     for i in range(len(data)):
@@ -87,7 +89,6 @@ def createButtonFrame():
 
         f = wrapper(data[i], out)
         button = tk.Button(line, text=data[i], font=monoFont, command=f, relief = tk.FLAT, padx = 5, pady = 0)
-
         button.grid(column=column, row=0)
         width += w
         column += 1
@@ -145,9 +146,36 @@ def scrape(word):
 
 def getSettingsFrame():
     out = tk.Frame(wn, bd=1, relief=tk.RAISED, padx=20, pady=20)
-    tk.Label(out, text="this will be the settings page", font=monoFont).grid(row=0, column=0, sticky="nw")
-    tk.Button(out, text="X", font=monoFont, command=out.pack_forget).grid(row=0, column=1, sticky="ne")
+
+    tk.Label(out, text="Settings Page", font=('Helvetica', 15, 'bold')).grid(row=0, column=1)
+    tk.Button(out, text="WiFi", font='Helvetica', relief=tk.FLAT).grid(row=1, column=0)
+    tk.Label(out, text="Brightness", font='Helvetica').grid(row=2, column=0, sticky="nw")
+    bright = Scale(out, from_=0, to=100, orient=HORIZONTAL, resolution=10, length=200, command=change_bright, )
+    bright.grid(row=2, column=1)
+
+    tk.Label(out, text="Fontsize", font='Helvetica').grid(row=3, column=0, sticky="nw")
+    Increasebutton = tk.Button(out, text="Increase", width=30, command=increase_label_font)
+    Decreasebutton = tk.Button(out, text="Decrease", width=30, command=decrease_label_font)
+    Increasebutton.grid(row=3, column=1)
+    Decreasebutton.grid(row=3, column=2)
+
+    tk.Button(out, text="X", font='Helvetica', command=out.pack_forget).grid(row=0, column=2, sticky="ne")
     return out
+
+def change_bright(val):
+    pct.set_brightness(val)
+
+def increase_label_font():
+    fontsize = monoFont['size']
+    monoFont.configure(size=fontsize+2)
+    fontsize = monoFont1['size']
+    monoFont1.configure(size=fontsize+2)
+
+def decrease_label_font():
+    fontsize = monoFont['size']
+    monoFont.configure(size=fontsize-2)
+    fontsize = monoFont1['size']
+    monoFont1.configure(size=fontsize-2)
 
 def getWordFrame(word, parent):
     syns = scrape(word)
@@ -170,12 +198,17 @@ topBar.pack(side = "top", fill = "x")
 
 settingsFrame = getSettingsFrame()
 
-settingsButton = tk.Button(topBar, text="settings", font=monoFont, command = lambda: settingsFrame.pack( side="top"))
-settingsButton.grid(row = 0, column = 0, sticky="e")
+photo_set = Image.open('settingsIcon.png')
+photo_set = photo_set.resize((200, 200))
+img_set = ImageTk.PhotoImage(photo_set)
+settingsButton = tk.Button(topBar, text="settings", image=img_set, font=monoFont, command = lambda: settingsFrame.pack( side="top"))
+settingsButton.pack(side='left')
 
-cameraButton = tk.Button(topBar, text="camera", font=monoFont, command = createButtonFrame)#camera)
-cameraButton.grid(row = 0, column = 1, sticky = "e")
-
+photo_cam = Image.open('cameraIcon.png')
+photo_cam = photo_cam.resize((240, 200))
+img_cam = ImageTk.PhotoImage(photo_cam)
+cameraButton = tk.Button(topBar, text="camera", image=img_cam, font=monoFont, command = createButtonFrame)#camera)
+cameraButton.pack(side='right')
 
 #camera()
 createButtonFrame()
