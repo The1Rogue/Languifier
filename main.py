@@ -30,7 +30,7 @@ def setMainFrame(frame):
     old = mainFrame
     mainFrame.pack_forget()
     mainFrame = frame
-    mainFrame.pack(side="bottom", fill="both", expand=True)
+    mainFrame.pack(side="bottom", fill="both", expand=True, ipadx=200)
     return old
 
 mouseData = [False, 0, 0]
@@ -53,7 +53,6 @@ def createButtonFrame():
 
     out = tk.Canvas(wn, yscrollincrement = 1)
     frame = tk.Frame(out)
-    tk.Label(out, text="Which word would you like to simplify?", font=monoFont1).pack(side='top')
 
     frame.bind(
         "<Configure>",
@@ -105,7 +104,8 @@ def createButtonFrame():
     return out
 
 def readFromImage(img):
-    return pt.image_to_string(img)
+    return 'This is a test text'
+    # return pt.image_to_string(img)
 
 # def camera():
 #     global ButtonFrame
@@ -196,6 +196,7 @@ def getWordFrame(word, parent):
 topBar = tk.Frame(wn, height = 64, width = screenWidth)
 topBar.pack(side = "top", fill = "x")
 
+tk.Label(topBar, text="Which word would you like to simplify?", font=monoFont1).pack(side='bottom')
 settingsFrame = getSettingsFrame()
 
 photo_set = Image.open('settingsIcon.png')
